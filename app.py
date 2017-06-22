@@ -33,6 +33,7 @@ def _event_handler(event_type, slack_event):
     """
 
     if event_type == "message":
+        pyBot.get_track_id(slack_event)
         pyBot.add_track(slack_event)
 
     # ============= Event Type Not Found! ============= #

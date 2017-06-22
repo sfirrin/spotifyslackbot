@@ -15,6 +15,7 @@ authed_teams = {}
 
 USERNAME = 'firrstep'
 SLACK_PLAYLIST_ID = '1oTqOl5VXjwVePqjKY5Otf'
+ID_KEY_TERMS = "spotify"
 
 class Bot(object):
     """ Instanciates a Bot object to handle Slack onboarding interactions."""
@@ -74,11 +75,31 @@ class Bot(object):
         # bot token
         self.client = SlackClient(authed_teams[team_id]["bot_token"])
 
-   
+
     def get_track_id(self, slack_event):
-        return '5AabqkMATMr8zsfPS5yJnr'
+        try:
+            import pdb
+            pdb.set_trace()
+            track_url = slack_event['event']['text']
+            if ID_KEY_TERMS in track_url:
+                if "track/" in track_url:
+                    track = track_url.split("track/")
+                else:
+                    track = track_url.split("track:")
+                clean_track = track[1].split(">")
+                clean_track = clean_track[0]
+
+                print "Found Track %s " % clean_track
+                return clean_track
+
+        except KeyError:
+            print "no spotify link found, listening "
+            return ''
 
     def add_track(self, slack_event):
+        """
+        Takes a slack event and adds the posted song to the playlist
+        """
         track_id = self.get_track_id(slack_event)
         scope = 'playlist-modify-public'
         token = util.prompt_for_user_token(USERNAME, scope)
