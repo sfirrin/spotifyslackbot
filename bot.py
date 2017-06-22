@@ -1,9 +1,9 @@
-# -*- coding: utf-8 -*-
-"""
-Python Slack Bot class for use with the pythOnBoarding app
-"""
+
 import os
 import message
+
+import spotipy
+import spotipy.util as util
 
 from slackclient import SlackClient
 
@@ -13,6 +13,8 @@ from slackclient import SlackClient
 # save this in a more persistant memory store.
 authed_teams = {}
 
+USERNAME = 'firrstep'
+SLACK_PLAYLIST_ID = '1oTqOl5VXjwVePqjKY5Otf'
 
 class Bot(object):
     """ Instanciates a Bot object to handle Slack onboarding interactions."""
@@ -72,8 +74,19 @@ class Bot(object):
         # bot token
         self.client = SlackClient(authed_teams[team_id]["bot_token"])
 
-
+   
+    def get_track_id(self, slack_event):
+        return '5AabqkMATMr8zsfPS5yJnr'
 
     def add_track(self, slack_event):
-        from pprint import pprint
-        pprint(slack_event)
+        track_id = self.get_track_id(slack_event)
+        scope = 'playlist-modify-public'
+        token = util.prompt_for_user_token(USERNAME, scope)
+
+        if token:
+            sp = spotipy.Spotify(auth=token)
+            sp.trace = False
+            results = sp.user_playlist_add_tracks(USERNAME, SLACK_PLAYLIST_ID, [track_id])
+            print(results)
+        else:
+            print('Cannot get token for ' + USERNAME)
